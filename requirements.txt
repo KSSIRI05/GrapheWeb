@@ -1,0 +1,21 @@
+# Web scraping
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+pdfplumber>=0.10.0
+
+# Base de données
+pymongo>=4.6.0
+
+# Planification
+schedule>=1.2.0
+
+# LLM - GEMINI au lieu d'Anthropic
+google-generativeai>=0.3.0
+
+# Configuration
+python-dotenv>=1.0.0
+
+# Graphes et visualisation
+networkx>=3.2.0
+matplotlib>=3.8.0
+numpy>=1.26.0
