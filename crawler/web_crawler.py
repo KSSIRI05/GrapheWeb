@@ -93,8 +93,27 @@ class WebCrawler:
         urls_to_visit = [url]
         
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language': 'fr-FR,fr;q=0.9,en;q=0.8',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Connection': 'keep-alive',
         }
+        
+        # Configuration de la session avec retry
+        import requests
+        from requests.adapters import HTTPAdapter
+        from requests.packages.urllib3.util.retry import Retry
+        
+        session = requests.Session()
+        retry = Retry(
+            total=3,
+            backoff_factor=1,
+            status_forcelist=[500, 502, 503, 504]
+        )
+        adapter = HTTPAdapter(max_retries=retry)
+        session.mount('http://', adapter)
+        session.mount('https://', adapter)
         
         while urls_to_visit and len(collected_data) < max_hits:
             current_url = urls_to_visit.pop(0)
@@ -105,7 +124,14 @@ class WebCrawler:
             visited_urls.add(current_url)
             
             try:
-                response = requests.get(current_url, headers=headers, timeout=10)
+                logger.info(f"Tentative de crawl: {current_url}")
+                
+                response = session.get(
+                    current_url, 
+                    headers=headers, 
+                    timeout=30,  # ← Timeout augmenté
+                    allow_redirects=True
+                )
                 response.raise_for_status()
                 
                 content_type = response.headers.get('Content-Type', '').lower()
